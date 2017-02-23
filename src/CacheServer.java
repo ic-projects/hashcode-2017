@@ -8,8 +8,10 @@ public class CacheServer {
   public HashMap<Video, Integer> videoValues = new HashMap<>();
   public int maxCapacity;
 
-  public CacheServer(int cacheSize) {
+  public CacheServer(int cacheSize, int id) {
+
     maxCapacity = cacheSize;
+    this.id = id;
   }
 
   public void addVideo(Video video) {

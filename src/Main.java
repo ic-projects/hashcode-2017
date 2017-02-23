@@ -30,13 +30,13 @@ public class Main {
       System.out.println(noOfVideos+","+noOfEndPoints+","+noOfRequestDesc
       +","+noOfCache+","+cacheSize);
       for(int i = 0; i < noOfCache ;i++) {
-          cacheServers.add(new CacheServer(cacheSize));
+          cacheServers.add(new CacheServer(cacheSize, i));
       }
 
       String[] secondLine = data.get(1).split(" ");
       for(int i = 0 ; i < noOfVideos; i++) {
           int size = Integer.parseInt(secondLine[i]);
-          Video v = new Video(size);
+          Video v = new Video(size, i);
           videos.add(v);
       }
 
@@ -107,6 +107,26 @@ public class Main {
             processed += 1;
             System.out.println("Processed " + processed + " of " + numCacheServers + " cache servers.");
         }
+    }
+
+    public String getOutputString() {
+      String outputString = "";
+      int serverNo = 0;
+      for(CacheServer server: cacheServers) {
+          if (server.videos.size() != 0) {
+              serverNo++;
+              outputString += "/n";
+              outputString += server.id;
+              for(Video video : server.videos ) {
+                  outputString += " ";
+                  outputString += video.id;
+              }
+
+
+          }
+      }
+      outputString = serverNo + outputString;
+      return outputString;
     }
 
 }

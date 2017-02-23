@@ -3,7 +3,7 @@ import java.util.HashMap;
 
 public class CacheServer {
   public int id;
-  public HashMap<Integer, Integer> latencyToEndpoint = new HashMap<>();
+  public HashMap<Endpoint, Integer> endpointToLatency = new HashMap<>();
   public ArrayList<Video> videos = new ArrayList<>();
   public HashMap<Video, Integer> videoValues = new HashMap<>();
   public int maxCapacity;

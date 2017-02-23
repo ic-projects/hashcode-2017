@@ -14,7 +14,7 @@ public class Main {
     public static ArrayList<CacheServer> cacheServers  = new ArrayList<>();
 
   public static void main(String[] args) throws Exception {
-      String location = "/data/sample.in";
+      String location = "/data/kittens.in";
       String pre = Paths.get(".").toAbsolutePath().normalize().toString();
       List<String> data = Files.readAllLines(Paths.get(pre+location));
       for(int i = 0; i < data.size(); i++) {
@@ -45,25 +45,24 @@ public class Main {
       for(int i = 0 ; i < noOfEndPoints; i++) {
 
           String[] ep = data.get(2+ i + offset).split(" ");
-          System.out.println("endpoint: "+ String.join(",",ep));
+          System.out.println(i+"/"+noOfEndPoints+"  endpoint: "+ String.join(",",ep));
           int datacenterLatency =  Integer.parseInt(ep[0]);
           int caches =  Integer.parseInt(ep[1]);
           Map<Integer, Integer> latencies = new HashMap<>();
-
+          lastOffset = 2 + i + offset;
           for(int i2 = 0 ;i2 < caches; i2++) {
-
               String[] laten = data.get(2 + i + offset + i2 + 1).split(" ");
               System.out.println("latencies: "+ String.join(",",laten));
               latencies.put(Integer.parseInt(laten[0]), Integer.parseInt(laten[1]));
               lastOffset = 2 + i + offset + i2 + 1;
           }
-          offset = caches;
+          offset += caches;
           Endpoint endpoint = new Endpoint(latencies, datacenterLatency);
           endpoints.add(endpoint);
       }
 
       for(int i = 0 ; i < noOfRequestDesc; i++) {
-          String[] ep = data.get(2 + i + lastOffset).split(" ");
+          String[] ep = data.get(1 + i + lastOffset).split(" ");
           System.out.println("req: "+ String.join(",",ep));
           int vid =  Integer.parseInt(ep[0]);
           int end =  Integer.parseInt(ep[1]);
@@ -71,7 +70,30 @@ public class Main {
           endpoints.get(end).addRequest(videos.get(vid),latency);
       }
 
-
   }
+
+    public static void setCacheVideoValues() {
+        int processed = 0;
+        int numCacheServers = cacheServers.size();
+        for (CacheServer cacheServer : cacheServers) {
+            for (Video video : videos) {
+                if (video.size > cacheServer.maxCapacity) {
+                    break;
+                }
+                int value = 0;
+                for (Endpoint endpoint : endpoints) {
+                    if (cacheServer.endpointToLatency.containsKey(endpoint)) {
+                        value += endpoint.requests.get(video) * (endpoint.latency
+                            - cacheServer.endpointToLatency.get(endpoint));
+                    }
+                }
+                if (value >= 0) {
+                    cacheServer.videoValues.put(video, value);
+                }
+            }
+            processed += 1;
+            System.out.println("Processed " + processed + " of " + numCacheServers + " cache servers.");
+        }
+    }
 
 }

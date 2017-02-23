@@ -45,8 +45,8 @@ public class Main {
               latencies.put(Integer.parseInt(laten[0]), Integer.parseInt(laten[1]));
           }
           offset = caches;
-          Endpoint ep = new Endpoint(latencies);
-          endpoints.add(ep);
+          Endpoint endpoint = new Endpoint(latencies);
+          endpoints.add(endpoint);
       }
 
 

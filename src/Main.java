@@ -72,4 +72,28 @@ public class Main {
 
   }
 
+    public static void setCacheVideoValues() {
+        int processed = 0;
+        int numCacheServers = cacheServers.size();
+        for (CacheServer cacheServer : cacheServers) {
+            for (Video video : videos) {
+                if (video.size > cacheServer.maxCapacity) {
+                    break;
+                }
+                int value = 0;
+                for (Endpoint endpoint : endpoints) {
+                    if (cacheServer.endpointToLatency.containsKey(endpoint)) {
+                        value += endpoint.requests.get(video) * (endpoint.latency
+                            - cacheServer.endpointToLatency.get(endpoint));
+                    }
+                }
+                if (value >= 0) {
+                    cacheServer.videoValues.put(video, value);
+                }
+            }
+            processed += 1;
+            System.out.println("Processed " + processed + " of " + numCacheServers + " cache servers.");
+        }
+    }
+
 }

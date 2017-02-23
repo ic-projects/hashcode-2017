@@ -11,4 +11,9 @@ public class CacheServer {
   public CacheServer(int cacheSize) {
     maxCapacity = cacheSize;
   }
+
+  public void addVideo(Video video) {
+    videos.add(video);
+    video.cacheServers.add(this);
+  }
 }

@@ -13,8 +13,8 @@ public class Main {
   public static void main(String[] args) throws Exception {
       //String location = "/data/me_at_the_zoo.in";
       //String location = "/data/sample.in";
-      //String location = "/data/videos_worth_spreading.in";
-      String location = "/data/kittens.in";
+      String location = "/data/videos_worth_spreading.in";
+      //String location = "/data/kittens.in";
       String pre = Paths.get(".").toAbsolutePath().normalize().toString();
       List<String> data = Files.readAllLines(Paths.get(pre+location));
       for(int i = 0; i < data.size(); i++) {
@@ -98,7 +98,7 @@ public class Main {
                                     - cacheServer.endpointToLatency.get(endpoint));
                         }
                     }
-                    if (value >= 0) {
+                    if (value > 0) {
                         //System.out.println("size"+video.size+" added"+value);
                         cacheServer.videoValues.put(video, value);
                     }

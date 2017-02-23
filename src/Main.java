@@ -1,9 +1,6 @@
-import java.awt.datatransfer.StringSelection;
-import java.io.InputStream;
-import java.lang.reflect.Array;
-import java.net.URL;
+
 import java.nio.file.Files;
-import java.nio.file.Path;
+
 import java.nio.file.Paths;
 import java.util.*;
 
@@ -14,6 +11,9 @@ public class Main {
     public static ArrayList<CacheServer> cacheServers  = new ArrayList<>();
 
   public static void main(String[] args) throws Exception {
+      //String location = "/data/me_at_the_zoo.in";
+      //String location = "/data/sample.in";
+      //String location = "/data/videos_worth_spreading.in";
       String location = "/data/kittens.in";
       String pre = Paths.get(".").toAbsolutePath().normalize().toString();
       List<String> data = Files.readAllLines(Paths.get(pre+location));
@@ -50,14 +50,18 @@ public class Main {
           int caches =  Integer.parseInt(ep[1]);
           Map<Integer, Integer> latencies = new HashMap<>();
           lastOffset = 2 + i + offset;
+          Endpoint endpoint = new Endpoint(datacenterLatency);
           for(int i2 = 0 ;i2 < caches; i2++) {
               String[] laten = data.get(2 + i + offset + i2 + 1).split(" ");
               System.out.println("latencies: "+ String.join(",",laten));
               latencies.put(Integer.parseInt(laten[0]), Integer.parseInt(laten[1]));
               lastOffset = 2 + i + offset + i2 + 1;
+              cacheServers.get(Integer.parseInt(laten[0])).endpointToLatency.put(endpoint,Integer.parseInt(laten[1]));
           }
+
           offset += caches;
-          Endpoint endpoint = new Endpoint(latencies, datacenterLatency);
+          endpoint.servers = latencies;
+
           endpoints.add(endpoint);
       }
 
@@ -70,6 +74,12 @@ public class Main {
           endpoints.get(end).addRequest(videos.get(vid),latency);
       }
 
+      setCacheVideoValues();
+
+        for(CacheServer c: cacheServers) {
+            System.out.println( Arrays.toString(c.videoValues.entrySet().toArray()));
+        }
+
   }
 
     public static void setCacheVideoValues() {
@@ -77,19 +87,22 @@ public class Main {
         int numCacheServers = cacheServers.size();
         for (CacheServer cacheServer : cacheServers) {
             for (Video video : videos) {
+                //System.out.println(video.size + " @ "+cacheServer.maxCapacity);
                 if (video.size > cacheServer.maxCapacity) {
                     break;
                 }
-                int value = 0;
-                for (Endpoint endpoint : endpoints) {
-                    if (cacheServer.endpointToLatency.containsKey(endpoint)) {
-                        value += endpoint.requests.get(video) * (endpoint.latency
-                            - cacheServer.endpointToLatency.get(endpoint));
+                    int value = 0;
+                    for (Endpoint endpoint : endpoints) {
+                        if (cacheServer.endpointToLatency.containsKey(endpoint) && endpoint.requests.get(video) != null) {
+                            value += endpoint.requests.get(video) * (endpoint.latency
+                                    - cacheServer.endpointToLatency.get(endpoint));
+                        }
                     }
-                }
-                if (value >= 0) {
-                    cacheServer.videoValues.put(video, value);
-                }
+                    if (value >= 0) {
+                        //System.out.println("size"+video.size+" added"+value);
+                        cacheServer.videoValues.put(video, value);
+                    }
+
             }
             processed += 1;
             System.out.println("Processed " + processed + " of " + numCacheServers + " cache servers.");

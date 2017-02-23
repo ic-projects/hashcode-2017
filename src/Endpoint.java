@@ -9,6 +9,9 @@ public class Endpoint {
     servers = serverslatency;
     this.latency = latency;
   }
+  Endpoint ( Integer latency) {
+    this.latency = latency;
+  }
 
   public void addRequest(Video video, Integer latency) {
     requests.put(video, latency);

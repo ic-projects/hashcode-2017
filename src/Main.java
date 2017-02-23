@@ -65,7 +65,7 @@ public class Main {
           int vid =  Integer.parseInt(ep[0]);
           int end =  Integer.parseInt(ep[1]);
           int latency =  Integer.parseInt(ep[2]);
-          //endpoints.get(end).addRequest(vid,latency);
+          endpoints.get(end).addRequest(videos.get(vid),latency);
       }
 
 

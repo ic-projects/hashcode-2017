@@ -51,7 +51,9 @@ public class Main {
           Map<Integer, Integer> latencies = new HashMap<>();
 
           for(int i2 = 0 ;i2 < caches; i2++) {
+
               String[] laten = data.get(2 + i + offset + i2 + 1).split(" ");
+              System.out.println("latencies: "+ String.join(",",laten));
               latencies.put(Integer.parseInt(laten[0]), Integer.parseInt(laten[1]));
               lastOffset = 2 + i + offset + i2 + 1;
           }
@@ -61,7 +63,8 @@ public class Main {
       }
 
       for(int i = 0 ; i < noOfRequestDesc; i++) {
-          String[] ep = data.get(1 + i + lastOffset).split(" ");
+          String[] ep = data.get(2 + i + lastOffset).split(" ");
+          System.out.println("req: "+ String.join(",",ep));
           int vid =  Integer.parseInt(ep[0]);
           int end =  Integer.parseInt(ep[1]);
           int latency =  Integer.parseInt(ep[2]);

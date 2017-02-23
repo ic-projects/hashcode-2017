@@ -6,4 +6,8 @@ public class DataCentre {
   public DataCentre() {
 
   }
+
+  public Video (Integer n) {
+    return videos.get(n);
+  }
 }

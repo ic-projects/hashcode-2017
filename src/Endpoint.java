@@ -4,7 +4,7 @@ import java.util.Map;
 public class Endpoint {
   Map<Integer, Integer> servers;
   Integer latency;
-  HashMap<Video, Integer> requests
+  HashMap<Video, Integer> requests = new HashMap<>();
   Endpoint (Map<Integer, Integer> serverslatency, Integer latency) {
     servers = serverslatency;
     this.latency = latency;

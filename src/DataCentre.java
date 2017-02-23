@@ -7,7 +7,7 @@ public class DataCentre {
 
   }
 
-  public Video (Integer n) {
+  public Video getVideos(Integer n) {
     return videos.get(n);
   }
 }

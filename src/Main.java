@@ -1,8 +1,10 @@
 
+import java.lang.reflect.Array;
 import java.nio.file.Files;
 
 import java.nio.file.Paths;
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class Main {
 
@@ -27,8 +29,8 @@ public class Main {
       int noOfCache = Integer.parseInt(firstLine[3]);
       int cacheSize = Integer.parseInt(firstLine[4]);
 
-      System.out.println(noOfVideos+","+noOfEndPoints+","+noOfRequestDesc
-      +","+noOfCache+","+cacheSize);
+      //System.out.println(noOfVideos+","+noOfEndPoints+","+noOfRequestDesc
+      //+","+noOfCache+","+cacheSize);
       for(int i = 0; i < noOfCache ;i++) {
           cacheServers.add(new CacheServer(cacheSize, i));
       }
@@ -77,9 +79,76 @@ public class Main {
       setCacheVideoValues();
 
         for(CacheServer c: cacheServers) {
-            System.out.println( Arrays.toString(c.videoValues.entrySet().toArray()));
+            //System.out.println( Arrays.toString(c.videoValues.entrySet().toArray()));
+            int[] w = new int[c.videoValues.size()+1];
+            int[] v = new int[c.videoValues.size()+1];
+            int n = c.videoValues.size();
+            int W = c.maxCapacity;
+            int[][] m = new int[n+1][W];
+            ArrayList<Video>[][] videoSolution = new  ArrayList[n+1][W];
+            ArrayList<Video> possibleVideos = new ArrayList();
+            for(Video vv: c.videoValues.keySet()) {
+                possibleVideos.add(vv);
+            }
+            int ii = 0 ;
+            for(Video vid: c.videoValues.keySet()) {
+                w[ii+1] = vid.size;
+                v[ii+1] = c.videoValues.get(vid);
+                ii++;
+            }
+
+            c.videos = solve(w, v, W, n, new ArrayList(c.videoValues.keySet()));
+
+            /*
+            for (int j = 0; j < W; j++) {
+                m[0][j] = 0;
+                videoSolution[0][j] = new ArrayList<>();
+            }
+
+            for (int i = 1; i <= n; i++) {
+                for (int j = 0; j < W; j++) {
+                    if (w[i-1] > j) {
+                        m[i][j] = m[i - 1][j];
+                        ArrayList<Video> newV = new ArrayList();
+                        newV.addAll(videoSolution[i - 1][j]);
+                        videoSolution[i][j] = newV;
+                    } else {
+                        m[i][j] = Math.max(m[i - 1][j], m[i - 1][j - w[i-1]] + v[i-1]);
+                        ArrayList<Video> newV = new ArrayList();
+                        newV.addAll(videoSolution[i - 1][j]);
+                        videoSolution[i][j] = newV;
+                        if (m[i - 1][j] < m[i - 1][j - w[i-1]] + v[i-1]) {
+                            videoSolution[i][j].add(possibleVideos.get(i-1));
+                        }
+                    }
+                }
+            }
+
+                for (int i = 0; i < n; i++) {
+                    System.out.println(Arrays.toString(m[i]));
+                }
+*/
+           // c.videos = videoSolution[n-1][W-1];
+
+
         }
 
+      System.out.println("solution: ");
+        int maxsize = 0;
+      for(CacheServer c: cacheServers) {
+          int maxsize2 = 0;
+          System.out.println("id:" + c.id+" max:"+c.maxCapacity);
+          for(Video v: c.videos) {
+              System.out.println(v.id+"   size:"+v.size);
+              maxsize2+=v.size;
+          }
+          maxsize=Math.max(maxsize2,maxsize);
+          System.out.println("=============");
+      }
+      System.out.println("maxsize" + maxsize);
+
+
+      System.out.println(getOutputString());
   }
 
     public static void setCacheVideoValues() {
@@ -109,13 +178,13 @@ public class Main {
         }
     }
 
-    public String getOutputString() {
+    public static String getOutputString() {
       String outputString = "";
       int serverNo = 0;
       for(CacheServer server: cacheServers) {
           if (server.videos.size() != 0) {
               serverNo++;
-              outputString += "/n";
+              outputString += "\n";
               outputString += server.id;
               for(Video video : server.videos ) {
                   outputString += " ";
@@ -127,6 +196,47 @@ public class Main {
       }
       outputString = serverNo + outputString;
       return outputString;
+    }
+
+    public static ArrayList<Video> solve(int[] wt, int[] val, int W, int N,ArrayList<Video> vid)
+    {
+        ArrayList<Video> toreturn = new ArrayList<>();
+        int NEGATIVE_INFINITY = Integer.MIN_VALUE;
+        int[][] m = new int[N + 1][W + 1];
+        int[][] sol = new int[N + 1][W + 1];
+
+        for (int i = 1; i <= N; i++)
+        {
+            for (int j = 0; j <= W; j++)
+            {
+                int m1 = m[i - 1][j];
+                int m2 = NEGATIVE_INFINITY;
+                if (j >= wt[i])
+                    m2 = m[i - 1][j - wt[i]] + val[i];
+                /** select max of m1, m2 **/
+                m[i][j] = Math.max(m1, m2);
+                sol[i][j] = m2 > m1 ? 1 : 0;
+            }
+        }
+        /** make list of what all items to finally select **/
+        int[] selected = new int[N + 1];
+        for (int n = N, w = W; n > 0; n--)
+        {
+            if (sol[n][w] != 0)
+            {
+                selected[n] = 1;
+                w = w - wt[n];
+            }
+            else
+                selected[n] = 0;
+        }
+        /** Print finally selected items **/
+        //System.out.println("\nItems selected : ");
+        for (int i = 1; i < N + 1; i++)
+            if (selected[i] == 1)
+                toreturn.add(vid.get(i-1));
+        //System.out.println();
+        return toreturn;
     }
 
 }
